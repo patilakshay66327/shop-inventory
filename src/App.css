@@ -40,6 +40,7 @@
 .paper-div {
   background-color: lightpink !important;
   padding: 20px !important;
+  height: 270px;
 }
 
 .MuiGrid-container {

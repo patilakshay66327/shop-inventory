@@ -1,0 +1,13 @@
+.search-div {
+  margin-top: 3%;
+  padding-left: 90px;
+  padding-right: 90px;
+}
+.search {
+  padding: 13px;
+  width: 100%;
+}
+
+.disable-div {
+  display: none;
+}

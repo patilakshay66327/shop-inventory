@@ -1,15 +1,28 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
-import { Grid, Paper, Button } from "@material-ui/core";
+import { Button } from "@material-ui/core";
+import BooksComponent from "./components/Books";
+import CartComponent from "./components/Cart";
+import SearchBarComponent from "./components/searchBar/searchBar";
 
 const PAGE_BOOKS = "Books";
 const PAGE_CART = "Cart";
 
 const App = () => {
   const [page, setPage] = useState(PAGE_BOOKS);
-  const [books, setBooks] = useState([]);
   const [cart, setCart] = useState([]);
+  const [books, setBooks] = useState([]);
+  const [currentPage] = useState(1);
+  const [booksPerPage] = useState(363);
+  const [searchTerm, setSearchTerm] = useState("");
+  const indexOfLastPost = currentPage * booksPerPage;
+  const indexOfFirstPost = indexOfLastPost - booksPerPage;
+  const currentBooks = books.slice(indexOfFirstPost, indexOfLastPost);
+
+  const filteredBooks = currentBooks.filter((book) =>
+    book.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   useEffect(() => {
     axios
@@ -38,47 +51,9 @@ const App = () => {
     setCart(cart.filter((book) => book !== bookToRemove));
   };
 
-  const renderBooks = () => (
-    <>
-      <h1>Books you Would Like to Read</h1>
-      <Grid container justify="center" spacing={2}>
-        {books.map((book) => (
-          <Grid key={book.bookID} item md="4">
-            <Paper elevation={3} className="paper-div">
-              <h3>{book.title}</h3>
-              <h4>${book.price}</h4>
-              <h4>Lang : {book.language_code}</h4>
-              <h4>Rating : {book.average_rating}</h4>
-              <Button variant="contained" onClick={() => addToCart(book)}>
-                Add to Cart
-              </Button>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    </>
-  );
-
-  const renderCart = () => (
-    <>
-      <h1>Your Choice is Awesome!!!!</h1>
-      <Grid container justify="center" spacing={2}>
-        {cart.map((book) => (
-          <Grid key={book.bookID} item md="4">
-            <Paper elevation={3} className="paper-div">
-              <h3>{book.title}</h3>
-              <h4>${book.price}</h4>
-              <h4>Lang : {book.language_code}</h4>
-              <h4>Rating : {book.average_rating}</h4>
-              <Button variant="contained" onClick={() => removeFromCart(book)}>
-                Remove
-              </Button>
-            </Paper>
-          </Grid>
-        ))}
-      </Grid>
-    </>
-  );
+  const inputChangeHandler = (e) => {
+    setSearchTerm(e.target.value);
+  };
 
   return (
     <div className="App">
@@ -87,6 +62,7 @@ const App = () => {
           variant="contained"
           color="primary"
           onClick={() => navigateTo(PAGE_CART)}
+          style={{ float: "Right", marginRight: "40px" }}
         >
           Cart({cart.length})
         </Button>
@@ -94,13 +70,23 @@ const App = () => {
           variant="contained"
           color="primary"
           onClick={() => navigateTo(PAGE_BOOKS)}
+          style={{ float: "Right", marginRight: "40px" }}
         >
-          See Books
+          Shop More Books
         </Button>
       </header>
 
-      {page === PAGE_BOOKS && renderBooks()}
-      {page === PAGE_CART && renderCart()}
+      <SearchBarComponent
+        inputChangeHandler={(e) => inputChangeHandler(e)}
+        page={page}
+      />
+
+      {page === PAGE_BOOKS && (
+        <BooksComponent books={filteredBooks} addToCart={addToCart} />
+      )}
+      {page === PAGE_CART && (
+        <CartComponent cart={cart} removeFromCart={removeFromCart} />
+      )}
     </div>
   );
 };
